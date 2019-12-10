@@ -7,14 +7,17 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 from torch.autograd import Variable
-from data import VOC_ROOT, VOC_CLASSES as labelmap
+# from data import VOC_ROOT, VOC_CLASSES as labelmap
+from data import TQQ_ROOT, TQQ_CLASSES as labelmap
 from PIL import Image
-from data import VOCAnnotationTransform, VOCDetection, BaseTransform, VOC_CLASSES
+# from data import VOCAnnotationTransform, VOCDetection, BaseTransform, VOC_CLASSES
+from data import TQQAnnotationTransform, TQQDetection, BaseTransform, TQQ_CLASSES
 import torch.utils.data as data
 from ssd import build_ssd
 
 parser = argparse.ArgumentParser(description='Single Shot MultiBox Detection')
-parser.add_argument('--trained_model', default='weights/ssd_300_VOC0712.pth',
+# parser.add_argument('--trained_model', default='weights/ssd_300_VOC0712.pth',
+parser.add_argument('--trained_model', default='weights/TQQ.pth',
                     type=str, help='Trained state_dict file path to open')
 parser.add_argument('--save_folder', default='eval/', type=str,
                     help='Dir to save results')
@@ -22,7 +25,8 @@ parser.add_argument('--visual_threshold', default=0.6, type=float,
                     help='Final confidence threshold')
 parser.add_argument('--cuda', default=True, type=bool,
                     help='Use cuda to train model')
-parser.add_argument('--voc_root', default=VOC_ROOT, help='Location of VOC root directory')
+# parser.add_argument('--voc_root', default=VOC_ROOT, help='Location of VOC root directory')
+parser.add_argument('--voc_root', default=TQQ_ROOT, help='Location of VOC root directory')
 parser.add_argument('-f', default=None, type=str, help="Dummy arg so we can load in Jupyter Notebooks")
 args = parser.parse_args()
 
@@ -78,13 +82,14 @@ def test_net(save_folder, net, cuda, testset, transform, thresh):
 
 def test_voc():
     # load net
-    num_classes = len(VOC_CLASSES) + 1 # +1 background
+    num_classes = len(TQQ_CLASSES) + 1 # +1 background
     net = build_ssd('test', 300, num_classes) # initialize SSD
     net.load_state_dict(torch.load(args.trained_model))
     net.eval()
     print('Finished loading model!')
     # load data
-    testset = VOCDetection(args.voc_root, [('2007', 'test')], None, VOCAnnotationTransform())
+    # testset = VOCDetection(args.voc_root, [('2007', 'test')], None, VOCAnnotationTransform())
+    testset = TQQDetection(args.voc_root, [('TQQ', 'trainval')], None, TQQAnnotationTransform())
     if args.cuda:
         net = net.cuda()
         cudnn.benchmark = True

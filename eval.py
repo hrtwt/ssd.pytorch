@@ -9,8 +9,10 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
-from data import VOC_ROOT, VOCAnnotationTransform, VOCDetection, BaseTransform
-from data import VOC_CLASSES as labelmap
+# from data import VOC_ROOT, VOCAnnotationTransform, VOCDetection, BaseTransform
+# from data import VOC_CLASSES as labelmap
+from data import TQQ_ROOT, TQQAnnotationTransform, TQQDetection, BaseTransform
+from data import TQQ_CLASSES as labelmap
 import torch.utils.data as data
 
 from ssd import build_ssd
@@ -36,7 +38,8 @@ def str2bool(v):
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Evaluation')
 parser.add_argument('--trained_model',
-                    default='weights/ssd300_mAP_77.43_v2.pth', type=str,
+                    default='weights/TQQ.pth', type=str,
+                    # default='weights/ssd300_mAP_77.43_v2.pth', type=str,
                     help='Trained state_dict file path to open')
 parser.add_argument('--save_folder', default='eval/', type=str,
                     help='File path to save results')
@@ -46,7 +49,7 @@ parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
 parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use cuda to train model')
-parser.add_argument('--voc_root', default=VOC_ROOT,
+parser.add_argument('--voc_root', default=TQQ_ROOT,
                     help='Location of VOC root directory')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
@@ -66,14 +69,19 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.voc_root, 'VOC2007', 'Annotations', '%s.xml')
-imgpath = os.path.join(args.voc_root, 'VOC2007', 'JPEGImages', '%s.jpg')
-imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets',
-                          'Main', '{:s}.txt')
-YEAR = '2007'
-devkit_path = args.voc_root + 'VOC' + YEAR
+# annopath = os.path.join(args.voc_root, 'VOC2007', 'Annotations', '%s.xml')
+# imgpath = os.path.join(args.voc_root, 'VOC2007', 'JPEGImages', '%s.jpg')
+# imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets',
+#                           'Main', '{:s}.txt')
+# YEAR = '2007'
+annopath = os.path.join(args.voc_root, 'TQQ', 'Annotations', '%s.xml')
+imgpath = os.path.join(args.voc_root, 'TQQ', 'PNGImages', '%s.png')
+imgsetpath = os.path.join(args.voc_root, 'TQQ', 'ImageSets', 'Main', '{:s}.txt')
+devkit_path = 'data/VOCdevkit/TQQ/'
+# devkit_path = args.voc_root + 'VOC' + YEAR
 dataset_mean = (104, 117, 123)
-set_type = 'test'
+# set_type = 'test'
+set_type = 'trainval'
 
 
 class Timer(object):
@@ -145,7 +153,7 @@ def get_voc_results_file_template(image_set, cls):
 
 def write_voc_results_file(all_boxes, dataset):
     for cls_ind, cls in enumerate(labelmap):
-        print('Writing {:s} VOC results file'.format(cls))
+        print('Writing {:s} TQQ results file'.format(cls))
         filename = get_voc_results_file_template(set_type, cls)
         with open(filename, 'wt') as f:
             for im_ind, index in enumerate(dataset.ids):
@@ -426,9 +434,10 @@ if __name__ == '__main__':
     net.eval()
     print('Finished loading model!')
     # load data
-    dataset = VOCDetection(args.voc_root, [('2007', set_type)],
-                           BaseTransform(300, dataset_mean),
-                           VOCAnnotationTransform())
+    # dataset = VOCDetection(args.voc_root, [('2007', set_type)],
+    #                        BaseTransform(300, dataset_mean),
+    #                        VOCAnnotationTransform())
+    dataset = TQQDetection(args.voc_root, [('TQQ',set_type)], BaseTransform(300, dataset_mean), TQQAnnotationTransform())
     if args.cuda:
         net = net.cuda()
         cudnn.benchmark = True
