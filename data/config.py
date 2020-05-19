@@ -42,7 +42,7 @@ coco = {
 }
 
 tqq = {
-    'num_classes': 6,
+    'num_classes': 3,
     'lr_steps': (80000, 100000, 120000),
     'max_iter': 5000,
     'feature_maps': [38, 19, 10, 5, 3, 1],

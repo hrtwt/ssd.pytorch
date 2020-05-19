@@ -24,7 +24,7 @@ else:
 #     'motorbike', 'person', 'pottedplant',
 #     'sheep', 'sofa', 'train', 'tvmonitor')
 
-TQQ_CLASSES = ('一花', '二乃', '三玖', '四葉', '五月')
+TQQ_CLASSES = ('柴田', '杉田')
 
 # note: if you used our download scripts, this should be right
 # VOC_ROOT = osp.join(HOME, "data/VOCdevkit/")
@@ -107,7 +107,7 @@ class TQQDetection(data.Dataset):
         self.target_transform = target_transform
         self.name = dataset_name
         self._annopath = osp.join('%s', 'Annotations', '%s.xml')
-        self._imgpath = osp.join('%s', 'PNGImages', '%s.png')
+        self._imgpath = osp.join('%s', 'JPEGImages', '%s.jpg')
         self.ids = list()
         for (tqq, name) in image_sets:
             rootpath = osp.join(self.root, 'TQQ')

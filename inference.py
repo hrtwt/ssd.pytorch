@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import torch
 from torch.autograd import Variable
 import cv2
@@ -6,6 +7,8 @@ import time
 # from imutils.video import FPS, WebcamVideoStream
 import argparse
 import numpy as np
+import matplotlib
+matplotlib.use('Agg') # -----(1)
 from matplotlib import pyplot as plt
 from data import BaseTransform, TQQDetection, TQQAnnotationTransform, TQQ_CLASSES as labelmap
 from ssd import build_ssd
@@ -19,7 +22,7 @@ parser.add_argument('--weights', default='weights/TQQ.pth',
                     type=str, help='Trained state_dict file path')
 parser.add_argument('--cuda', default=False, type=bool,
                     help='Use cuda in live demo')
-parser.add_argument('--num', default=0, type=int)
+parser.add_argument('--num', default=11, type=int)
 args = parser.parse_args()
 
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
@@ -27,7 +30,7 @@ COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 TQQ_ROOT = ''
 
 def demo(net, transform, num):
-    testset = TQQDetection(TQQ_ROOT, [('TQQ', 'trainval')], None, TQQAnnotationTransform())
+    testset = TQQDetection(TQQ_ROOT, [('TQQ', 'try')], None, TQQAnnotationTransform())  #trainval
     img_id = num
     image = testset.pull_image(img_id)
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -45,7 +48,7 @@ def demo(net, transform, num):
     scale = torch.Tensor([width, height, width, height])
     for i in range(detections.size(1)):
         j = 0
-        while detections[0, i, j, 0] >= 0.6:
+        while detections[0, i, j, 0] >= 0.2:
             score = detections[0,i,j,0]
             label_name = labelmap[i-1]
             display_txt = '%s: %.2f'%(label_name, score)
@@ -63,8 +66,9 @@ def demo(net, transform, num):
             # cv2.putText(image, labelmap[i - 1], (int(pt[0]), int(pt[1])),
             #             FONT, 2, (255, 0, 0), 2, cv2.LINE_AA)
             j += 1
-    # cv2.imwrite('./results/' + str(num) + '.png', image)
+    # cv2.imwrite('./results/' + str(num) + '.jpg', image)
     plt.show()
+    plt.savefig(str(num) + '.jpg')
     plt.close()
 
 if __name__ == '__main__':
@@ -73,7 +77,7 @@ if __name__ == '__main__':
     num = args.num
 
     net = build_ssd('test', 300, num_classes)    # initialize SSD
-    net.load_state_dict(torch.load(args.weights))
+    net.load_state_dict(torch.load(args.weights, map_location=torch.device('cpu')))
     transform = BaseTransform(net.size, (104/256.0, 117/256.0, 123/256.0))
 
     demo(net.eval(), transform, num)

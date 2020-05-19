@@ -25,7 +25,7 @@ VOC_CLASSES = (  # always index 0
     'sheep', 'sofa', 'train', 'tvmonitor')
 
 # note: if you used our download scripts, this should be right
-VOC_ROOT = osp.join(HOME, "data/VOCdevkit/")
+VOC_ROOT = osp.join(HOME, "data\\VOCdevkit\\")
 
 
 class VOCAnnotationTransform(object):
@@ -99,7 +99,7 @@ class VOCDetection(data.Dataset):
                  transform=None, target_transform=VOCAnnotationTransform(),
                  dataset_name='VOC0712'):
         # self.root = root
-        self.root = 'data/VOCdevkit/'
+        self.root = '..\\data\\VOCdevkit\\'
         self.image_set = image_sets
         self.transform = transform
         self.target_transform = target_transform
